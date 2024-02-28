@@ -102,5 +102,13 @@ minikube mount C:\Users\Buruc\Desktop\Exercice_RISF_ITSF_Nice\k8s:/mnt/host
     path: /mnt/host/index2.html
 
 
+Security:
+Desactiver l'utilizateur root:
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000  # Use a non-root user ID
+(Problems de-installation de Nginx avec ca, il faut trouver une alternative)
+
+
 
 Pour l'instant la mayorite de problems relacione avec du Minikube
