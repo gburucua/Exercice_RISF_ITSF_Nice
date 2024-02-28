@@ -17,7 +17,7 @@ spec:
         paths:
           - path: /
             pathType: Prefix
-            backend:
+            backend: 
               service:
                 name: hello-risf-service
                 port:

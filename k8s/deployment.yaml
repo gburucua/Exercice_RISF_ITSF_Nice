@@ -18,9 +18,6 @@ spec:
         image: gburucua/hello-image:v1
         ports:
         - containerPort: 80
-        volumeMounts:
-        - name: html
-          mountPath: /usr/share/nginx/html
         resources:
           requests:
             memory: "64Mi"
@@ -28,7 +25,3 @@ spec:
           limits:
             memory: "128Mi"
             cpu: "500m"
-      volumes:
-      - name: html
-        hostPath:
-          path: /usr/share/nginx/html/index.html

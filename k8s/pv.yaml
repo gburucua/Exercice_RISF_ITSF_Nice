@@ -9,4 +9,4 @@ spec:
   accessModes:
     - ReadWriteOnce
   hostPath:
-    path: index2.html
+    path: /mnt/host/index2.html
