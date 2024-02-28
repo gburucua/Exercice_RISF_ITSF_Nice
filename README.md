@@ -23,4 +23,84 @@ exposer les pages web sous les noms de domaine hello-risf.local.domain et hello-
 trafic en HTTPS jusqu'à Ingress, puis en HTTP jusqu'aux micro service nginx.
 Lorsque l'on visitera les deux sites web depuis le navigateur internet, le warning de sécurité ne devra pas apparaître :
 
-image.png
+
+----------------------------------------------------------------------------------------------------------------------------------------------
+
+#EnviromentL: 
+Minikube avec Docker Desktop Windows
+$minikube start
+
+
+#Estructure
+C:.
+│   Dockerfile
+│   README.md
+│   
+├───k8s
+│       deployment.yaml
+│       deployment2.yaml
+│       index.html
+│       index2.html
+│       ingress.yaml
+│       pv.yaml
+│       pvc.yaml
+│       secrets.yaml
+│       services.yaml
+│
+└───keys
+        ca.crt
+        ca.key
+        ca.srl
+        cert.pem
+        hello-itsf.crt
+        hello-itsf.csr
+        hello-itsf.key
+        hello-risf.crt
+        hello-risf.csr
+        hello-risf.key
+        key.pem
+        ssl.conf
+
+
+
+#Image creee a partir de nginx avec l'archive index RISF:
+https://hub.docker.com/r/gburucua/hello-image/tags
+
+
+#Applying files in order: 
+kubectl apply -f secrets.yaml
+kubectl apply -f pv.yaml
+kubectl apply -f pvc.yaml
+kubectl apply -f deployment.yaml
+kubectl apply -f deployment2.yaml
+kubectl apply -f services.yaml
+kubectl apply -f ingress.yaml
+
+#Site1  
+Working locally
+$ minikube service hello-risf-service --url -n hello-gb
+http://127.0.0.1:51753
+
+![hello risf local](https://github.com/gburucua/Exercice_RISF_ITSF_Nice/assets/47932497/fd02224c-c930-48a6-b677-ea3d4544dc2a)
+
+
+#Problemes recontree 
+
+certs: 
+Unexpected error validating SSL certificate "hello-gb/hello-itsf-tls-secret" for server "hello-itsf.local.domain": x509: certificate relies on legacy Common Name field, use SANs instead
+
+ingress:
+pas possible de gerer le traffic vers l'IP du cluster du minikube
+avec minikube tunnel active 
+
+
+mounts:
+cest pas possible de redirigir le path dans le PV directment ou minikube
+essayer avec:
+minikube mount C:\Users\Buruc\Desktop\Exercice_RISF_ITSF_Nice\k8s:/mnt/host
+  hostPath:
+    path: /mnt/host/index2.html
+
+
+
+Pour l'instant la mayorite de problems relacione avec du Minikube
