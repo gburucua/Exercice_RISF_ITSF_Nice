@@ -2,7 +2,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: index-html-pvc
-  namespace: hello-gb  
+  namespace: ingress-nginx  
 spec:
   accessModes:
     - ReadWriteOnce

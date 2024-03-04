@@ -2,8 +2,9 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: ingress
-  namespace: hello-gb  
+  namespace: ingress-nginx
 spec:
+  ingressClassName: nginx
   tls:
     - hosts:
         - hello-risf.local.domain
@@ -22,6 +23,7 @@ spec:
                 name: hello-risf-service
                 port:
                   number: 80
+ #               namespace: hello-gb
     - host: hello-itsf.local.domain
       http:
         paths:
@@ -32,3 +34,4 @@ spec:
                 name: hello-itsf-service
                 port:
                   number: 80
+#                namespace: hello-gb

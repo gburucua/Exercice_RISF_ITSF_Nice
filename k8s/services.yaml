@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: hello-risf-service
-  namespace: hello-gb
+  namespace: ingress-nginx
 spec:
   selector:
     app: hello-world-nginx   # Label selector to match pods
@@ -17,7 +17,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: hello-itsf-service
-  namespace: hello-gb
+  namespace: ingress-nginx
 spec:
   selector:
     app: index-html-deployment   # Label selector to match pods
