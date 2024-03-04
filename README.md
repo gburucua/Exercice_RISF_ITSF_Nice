@@ -31,35 +31,9 @@ Minikube avec Docker Desktop Windows
 $minikube start
 
 
-#Estructure
-C:.
-│   Dockerfile
-│   README.md
-│   
-├───k8s
-│       deployment.yaml
-│       deployment2.yaml
-│       index.html
-│       index2.html
-│       ingress.yaml
-│       pv.yaml
-│       pvc.yaml
-│       secrets.yaml
-│       services.yaml
-│
-└───keys
-        ca.crt
-        ca.key
-        ca.srl
-        cert.pem
-        hello-itsf.crt
-        hello-itsf.csr
-        hello-itsf.key
-        hello-risf.crt
-        hello-risf.csr
-        hello-risf.key
-        key.pem
-        ssl.conf
+# File Estructure
+![Screen Shot 2024-03-03 at 2 30 51 pm](https://github.com/gburucua/Exercice_RISF_ITSF_Nice/assets/47932497/e569feae-c6ca-4dd3-bec9-5a04b039c334)
+
 
 
 
@@ -76,12 +50,19 @@ kubectl apply -f deployment2.yaml
 kubectl apply -f services.yaml
 kubectl apply -f ingress.yaml
 
-#Site1  
+#Site1 RIFS
 Working locally
 $ minikube service hello-risf-service --url -n hello-gb
 http://127.0.0.1:51753
 
 ![hello risf local](https://github.com/gburucua/Exercice_RISF_ITSF_Nice/assets/47932497/fd02224c-c930-48a6-b677-ea3d4544dc2a)
+
+#Site2 ITSF
+Workaround in docker desktop for mac copy the file manualy with:
+$ kubectl cp /tmp/index2.html index-html-deployment-647b95995-7v5gg:/usr/share/nginx/html/index.html
+
+![Screen Shot 2024-03-03 at 2 25 45 pm](https://github.com/gburucua/Exercice_RISF_ITSF_Nice/assets/47932497/46983bd2-6bb1-453f-a0bb-58d6326f343e)
+
 
 
 #Problemes recontree 
