@@ -6,9 +6,11 @@ distinguished_name = req_distinguished_name
 req_extensions     = req_ext
 
 [req_distinguished_name]
-commonName         = Common Name (e.g., your domain name)
+commonName         = hello-itsf.local.domain
 
 [req_ext]
+basicConstraints   = critical,CA:TRUE,pathlen:0
+keyUsage           = critical,keyCertSign,cRLSign
 subjectAltName     = @alt_names
 
 [alt_names]
