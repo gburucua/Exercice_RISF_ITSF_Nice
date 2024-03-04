@@ -26,28 +26,28 @@ Lorsque l'on visitera les deux sites web depuis le navigateur internet, le warni
 
 ----------------------------------------------------------------------------------------------------------------------------------------------
 
-#Enviroment: 
+# Enviroment: 
 Docker Desktop for Mac
 
-# File Estructure
+# File structure
 
 ![structure](https://github.com/gburucua/Exercice_RISF_ITSF_Nice/assets/47932497/68d54384-7f00-40c5-82d6-799318baf7e0)
 
 
 
 
-#Image creee a partir de nginx avec l'archive index RISF:
+# Image created from nginx with index file RISF:
 https://hub.docker.com/r/gburucua/hello-image/tags
 
 ----------------------------------------------------------------------------------------
-#Avant de commencer il faut installer ingress-ngxing controller
+# Before starting you need to install ingress-ngxing controller
 $ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/cloud/deploy.yaml
 
 #Set default namespace:
 $ kubectl config set-context --current --namespace=ingress-nginx
 
 ----------------------------------------------------------------------------------------
-#Certificates and Secrets:
+# Certificates and Secrets:
 
 Create file openssl.cnf 
 [req]
@@ -71,7 +71,7 @@ DNS.2              = hello-risf.local.domain 
 
 
 
-Generating CA (certificate authority)
+# Generating CA (certificate authority)
 $ openssl genrsa -out ca.key 2048 
 $ openssl req -new -key ca.key -out ca.csr -subj "/CN=hello-itsf.local.domain" -config openssl.cnf
 $ openssl x509 -req -in ca.csr -signkey ca.key -out ca.crt -days 365 -extensions req_ext -extfile openssl.cnf
@@ -80,7 +80,7 @@ $ openssl x509 -req -in ca.csr -signkey ca.key -out ca.crt -days 365 -extensions
 ----------------------------------------------------------------------------------------
 
 
-#For ITSF 
+# For ITSF 
 Create key and csr:
 $openssl req -new -nodes -newkey rsa:2048 -keyout hello-itsf.local.domain.key -out hello-itsf.local.domain.csr \
   -subj "/CN=hello-itsf.local.domain" \
@@ -94,7 +94,7 @@ $ openssl x509 -req -in hello-itsf.local.domain.csr -CA ca.crt -CAkey ca.key -CA
 ----------------------------------------------------------------------------------------
 
 
-#For RISF 
+# For RISF 
 Create key and csr: 
 $ openssl req -new -nodes -newkey rsa:2048 -keyout hello-risf.local.domain.key -out hello-risf.local.domain.csr \
   -subj "/CN=hello-risf.local.domain" \
@@ -107,7 +107,7 @@ $ openssl x509 -req -in hello-risf.local.domain.csr -CA ca.crt -CAkey ca.key -CA
 
 
 
-#Import ca.crt in browser: Mozilla 
+# Import ca.crt in browser: Mozilla 
 
 Create Secrets:
 $ kubectl create secret tls hello-risf-tls-secret --cert=hello-risf.local.domain.crt --key=hello-risf.local.domain.key -n ingress-nginx
@@ -118,7 +118,7 @@ All this with secrets manifest.
 
 ----------------------------------------------------------------------------------------
 
-#Applying files in order: 
+# Applying files in order: 
 kubectl apply -f pv.yaml
 kubectl apply -f pvc.yaml
 kubectl apply -f deployment.yaml
@@ -128,14 +128,14 @@ ingress-controller-deployment.yaml (To add secrets to the ingress controller)
 kubectl apply -f ingress.yaml
 
 
-#Testing in Mozilla
+# Testing in Mozilla
 
-#Site1 RIFS
+# Site1 RIFS
 
 ![RISF](https://github.com/gburucua/Exercice_RISF_ITSF_Nice/assets/47932497/21134486-dc86-4ee4-be6a-366142ed259b)
 
 
-#Site2 ITSF
+# Site2 ITSF
 
 Workaround in docker desktop for mac copy the file manualy with:
 $ kubectl cp /tmp/index2.html index-html-deployment-647b95995-7v5gg:/usr/share/nginx/html/index.html
@@ -171,12 +171,12 @@ RUN chown -R nginx:nginx /app && chmod -R 755 /app && \
 RUN touch /var/run/nginx.pid && \
         chown -R nginx:nginx /var/run/nginx.pid
 
-# Switch to the nginx user
+Switch to the nginx user
 USER nginx
 
 #EXPOSE <PORT_NUMBER>
 
-# Specify the command to run NGINX
+Specify the command to run NGINX
 CMD ["nginx", "-g", "daemon off;"]
 
 
