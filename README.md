@@ -131,10 +131,12 @@ kubectl apply -f ingress.yaml
 #Testing in Mozilla
 
 #Site1 RIFS
+
 ![RISF](https://github.com/gburucua/Exercice_RISF_ITSF_Nice/assets/47932497/21134486-dc86-4ee4-be6a-366142ed259b)
 
 
 #Site2 ITSF
+
 Workaround in docker desktop for mac copy the file manualy with:
 $ kubectl cp /tmp/index2.html index-html-deployment-647b95995-7v5gg:/usr/share/nginx/html/index.html
 
@@ -155,8 +157,29 @@ essayer avec changement de confi en properties file sharing
 
 
 Security:
-Desactiver l'utilizateur root:
-        securityContext:
-          runAsNonRoot: true
-          runAsUser: 1000  # Use a non-root user ID
-(Problems de-installation de Nginx avec ca, il faut trouver une alternative)
+To run as non root:
+Added permissions to specific folders of nginx with the user nginx in dockerfile and in the deployment added a few lines to reflect it.
+FROM nginx:1.20
+COPY index.html /etc/nginx/html/index.html
+WORKDIR /app
+RUN chown -R nginx:nginx /app && chmod -R 755 /app && \
+        chown -R nginx:nginx /var/cache/nginx && \
+        chown -R nginx:nginx /var/log/nginx && \
+        chown -R nginx:nginx /etc/nginx/conf.d && \
+        chown -R nginx:nginx /usr/share/nginx/html
+
+RUN touch /var/run/nginx.pid && \
+        chown -R nginx:nginx /var/run/nginx.pid
+
+# Switch to the nginx user
+USER nginx
+
+#EXPOSE <PORT_NUMBER>
+
+# Specify the command to run NGINX
+CMD ["nginx", "-g", "daemon off;"]
+
+
+
+Iburuc:k8s gburucua$ k exec -it hello-world-nginx-c9c9d9b8b-ww7nx /bin/bash
+nginx@hello-world-nginx-c9c9d9b8b-ww7nx:/app$
