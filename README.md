@@ -138,10 +138,6 @@ kubectl apply -f ingress.yaml
 
 # Site2 ITSF
 
-Workaround in docker desktop for mac copy the file manualy with:
-$ kubectl cp /tmp/index2.html index-html-deployment-647b95995-7v5gg:/usr/share/nginx/html/index.html
-
-
 ![ITSF](https://github.com/gburucua/Exercice_RISF_ITSF_Nice/assets/47932497/c24e3d4f-d056-4ffc-b16c-31435c5028cd)
 
 
