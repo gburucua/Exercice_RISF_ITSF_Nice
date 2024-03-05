@@ -145,18 +145,6 @@ $ kubectl cp /tmp/index2.html index-html-deployment-647b95995-7v5gg:/usr/share/n
 ![ITSF](https://github.com/gburucua/Exercice_RISF_ITSF_Nice/assets/47932497/c24e3d4f-d056-4ffc-b16c-31435c5028cd)
 
 
-
-
-# Problemes recontree 
-
-- certs V
-- ingress V
-- mounts X
-cest pas possible de redirigir le path dans le PV directment ou Docker Desktop for Mac
-essayer avec changement de confi en properties file sharing
-
-
-
 # Security (To run containers as nonroot):
 
 Added permissions to specific folders of nginx with the user nginx in dockerfile and in the deployment added a few lines to reflect it.
@@ -197,4 +185,10 @@ deployment.yaml
 
 
 Iburuc:k8s gburucua$ k exec -it hello-world-nginx-c9c9d9b8b-ww7nx /bin/bash
-# nginx@hello-world-nginx-c9c9d9b8b-ww7nx:/app$
+nginx@hello-world-nginx-c9c9d9b8b-ww7nx:/app$
+
+# Problemes recontree 
+
+- certs 
+- ingress 
+- mounts 
