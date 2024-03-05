@@ -13,11 +13,16 @@ spec:
       labels:
         app: hello-world-nginx
     spec:
+      securityContext:
+        runAsUser: 101   # UID of the nginx user
+        fsGroup: 101      # GID of the nginx user
       containers:
       - name: nginx
-        image: gburucua/hello-image:v1
+        image: gburucua/nginx:1.20-nonrootv3
         ports:
         - containerPort: 80
+        securityContext:
+          runAsNonRoot: true
         resources:
           requests:
             memory: "64Mi"

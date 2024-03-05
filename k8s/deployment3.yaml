@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: index-html-deployment
+  namespace: ingress-nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: index-html-deployment
+  template:
+    metadata:
+      labels:
+        app: index-html-deployment
+    spec:
+      securityContext:
+        runAsUser: 101   # UID of the nginx user
+        fsGroup: 101      # GID of the nginx user
+      volumes:
+      - name: html
+        persistentVolumeClaim:
+          claimName: index-html-pvc
+      initContainers:
+      - name: set-permissions
+        image: nginx:latest  # Use NGINX official image for the init container
+        securityContext:
+          privileged: true  # Set the init container as privileged
+        command: ["sh", "-c", "chown -R nginx:nginx /app /var/cache/nginx /var/log/nginx /etc/nginx/conf.d /usr/share/nginx/html && chmod -R 755 /app"]
+        volumeMounts:
+        - name: html
+          mountPath: /usr/share/nginx/html
+      containers:
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+        securityContext:
+          runAsNonRoot: true
+        volumeMounts:
+        - name: html
+          mountPath: /usr/share/nginx/html
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "250m"
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
