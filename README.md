@@ -26,70 +26,175 @@ Lorsque l'on visitera les deux sites web depuis le navigateur internet, le warni
 
 ----------------------------------------------------------------------------------------------------------------------------------------------
 
-#EnviromentL: 
-Minikube avec Docker Desktop Windows
-$minikube start
+# Enviroment: 
+Docker Desktop for Mac
+
+# File structure
+
+![structure](https://github.com/gburucua/Exercice_RISF_ITSF_Nice/assets/47932497/68d54384-7f00-40c5-82d6-799318baf7e0)
 
 
-# File Estructure
-![Screen Shot 2024-03-03 at 2 30 51 pm](https://github.com/gburucua/Exercice_RISF_ITSF_Nice/assets/47932497/e569feae-c6ca-4dd3-bec9-5a04b039c334)
+
+
+# Image created from nginx with index file RISF:
+](https://hub.docker.com/repository/docker/gburucua/nginx/general)
+
+----------------------------------------------------------------------------------------
+
+# Before starting its needed to install ingress-ngxing controller
+$ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/cloud/deploy.yaml
+
+# Set default namespace:
+$ kubectl config set-context --current --namespace=ingress-nginx
+
+----------------------------------------------------------------------------------------
+# Certificates and Secrets:
+
+Create file openssl.cnf 
+[req]
+default_bits       = 2048
+prompt             = no
+default_md         = sha256
+distinguished_name = req_distinguished_name
+req_extensions     = req_ext
+
+[req_distinguished_name]
+commonName         = hello-itsf.local.domain
+
+[req_ext]
+basicConstraints   = critical,CA:TRUE,pathlen:0
+keyUsage           = critical,keyCertSign,cRLSign
+subjectAltName     = @alt_names
+
+[alt_names]
+DNS.1              = hello-itsf.local.domain
+DNS.2              = hello-risf.local.domain 
+
+----------------------------------------------------------------------------------------
+
+# Generating CA (certificate authority)
+$ openssl genrsa -out ca.key 2048 
+$ openssl req -new -key ca.key -out ca.csr -subj "/CN=hello-itsf.local.domain" -config openssl.cnf
+$ openssl x509 -req -in ca.csr -signkey ca.key -out ca.crt -days 365 -extensions req_ext -extfile openssl.cnf
+
+
+----------------------------------------------------------------------------------------
+
+
+# For ITSF 
+Create key and csr:
+$openssl req -new -nodes -newkey rsa:2048 -keyout hello-itsf.local.domain.key -out hello-itsf.local.domain.csr \
+  -subj "/CN=hello-itsf.local.domain" \
+  -config openssl.cnf
+
+Sign:
+$ openssl x509 -req -in hello-itsf.local.domain.csr -CA ca.crt -CAkey ca.key -CAcreateserial \
+  -out hello-itsf.local.domain.crt -days 365 -sha256 \
+  -extfile <(printf "subjectAltName=DNS:hello-itsf.local.domain,DNS:hello-risf.local.domain") 
+
+----------------------------------------------------------------------------------------
+
+
+# For RISF 
+Create key and csr: 
+$ openssl req -new -nodes -newkey rsa:2048 -keyout hello-risf.local.domain.key -out hello-risf.local.domain.csr \
+  -subj "/CN=hello-risf.local.domain" \
+  -config openssl.cnf
+
+Sign:
+$ openssl x509 -req -in hello-risf.local.domain.csr -CA ca.crt -CAkey ca.key -CAcreateserial \
+  -out hello-risf.local.domain.crt -days 365 -sha256 \
+  -extfile <(printf "subjectAltName=DNS:hello-itsf.local.domain,DNS:hello-risf.local.domain") 
 
 
 
+# Import ca.crt in browser: Mozilla 
 
-#Image creee a partir de nginx avec l'archive index RISF:
-https://hub.docker.com/r/gburucua/hello-image/tags
+Create Secrets:
+$ kubectl create secret tls hello-risf-tls-secret --cert=hello-risf.local.domain.crt --key=hello-risf.local.domain.key -n ingress-nginx
+$ kubectl create secret tls hello-itsf-tls-secret --cert=hello-itsf.local.domain.crt --key=hello-itsf.local.domain.key -n ingress-nginx
 
+TODO:
+All this with secrets manifest.
 
-#Applying files in order: 
-kubectl apply -f secrets.yaml
+----------------------------------------------------------------------------------------
+
+# Applying files in order: 
 kubectl apply -f pv.yaml
 kubectl apply -f pvc.yaml
 kubectl apply -f deployment.yaml
 kubectl apply -f deployment2.yaml
 kubectl apply -f services.yaml
+kubectl ingress-controller-deployment.yaml (To add secrets to the ingress controller)
 kubectl apply -f ingress.yaml
 
-#Site1 RIFS
-Working locally
-$ minikube service hello-risf-service --url -n hello-gb
-http://127.0.0.1:51753
 
-![hello risf local](https://github.com/gburucua/Exercice_RISF_ITSF_Nice/assets/47932497/fd02224c-c930-48a6-b677-ea3d4544dc2a)
+# Testing in Mozilla
 
-#Site2 ITSF
+# Site1 RIFS
+
+![RISF](https://github.com/gburucua/Exercice_RISF_ITSF_Nice/assets/47932497/21134486-dc86-4ee4-be6a-366142ed259b)
+
+
+# Site2 ITSF
+
 Workaround in docker desktop for mac copy the file manualy with:
 $ kubectl cp /tmp/index2.html index-html-deployment-647b95995-7v5gg:/usr/share/nginx/html/index.html
 
-![Screen Shot 2024-03-03 at 2 25 45 pm](https://github.com/gburucua/Exercice_RISF_ITSF_Nice/assets/47932497/46983bd2-6bb1-453f-a0bb-58d6326f343e)
+
+![ITSF](https://github.com/gburucua/Exercice_RISF_ITSF_Nice/assets/47932497/c24e3d4f-d056-4ffc-b16c-31435c5028cd)
 
 
 
-#Problemes recontree 
 
-certs: 
-Unexpected error validating SSL certificate "hello-gb/hello-itsf-tls-secret" for server "hello-itsf.local.domain": x509: certificate relies on legacy Common Name field, use SANs instead
+# Problemes recontree 
 
-ingress:
-pas possible de gerer le traffic vers l'IP du cluster du minikube
-avec minikube tunnel active 
-
-
-mounts:
-cest pas possible de redirigir le path dans le PV directment ou minikube
-essayer avec:
-minikube mount C:\Users\Buruc\Desktop\Exercice_RISF_ITSF_Nice\k8s:/mnt/host
-  hostPath:
-    path: /mnt/host/index2.html
+- certs V
+- ingress V
+- mounts X
+cest pas possible de redirigir le path dans le PV directment ou Docker Desktop for Mac
+essayer avec changement de confi en properties file sharing
 
 
-Security:
-Desactiver l'utilizateur root:
+
+# Security (To run containers as nonroot):
+
+Added permissions to specific folders of nginx with the user nginx in dockerfile and in the deployment added a few lines to reflect it.
+
+FROM nginx:1.20
+COPY index.html /etc/nginx/html/index.html
+WORKDIR /app
+RUN chown -R nginx:nginx /app && chmod -R 755 /app && \
+        chown -R nginx:nginx /var/cache/nginx && \
+        chown -R nginx:nginx /var/log/nginx && \
+        chown -R nginx:nginx /etc/nginx/conf.d && \
+        chown -R nginx:nginx /usr/share/nginx/html
+
+RUN touch /var/run/nginx.pid && \
+        chown -R nginx:nginx /var/run/nginx.pid
+
+Switch to the nginx user
+USER nginx
+
+#EXPOSE <PORT_NUMBER>
+
+Specify the command to run NGINX
+CMD ["nginx", "-g", "daemon off;"]
+
+
+deployment.yaml
+...
+...
+    spec:
+      securityContext:
+        runAsUser: 101   # UID of the nginx user
+        fsGroup: 101      # GID of the nginx user
+...
+...
         securityContext:
           runAsNonRoot: true
-          runAsUser: 1000  # Use a non-root user ID
-(Problems de-installation de Nginx avec ca, il faut trouver une alternative)
 
 
 
-Pour l'instant la mayorite de problems relacione avec du Minikube
+Iburuc:k8s gburucua$ k exec -it hello-world-nginx-c9c9d9b8b-ww7nx /bin/bash
+# nginx@hello-world-nginx-c9c9d9b8b-ww7nx:/app$
