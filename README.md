@@ -37,13 +37,14 @@ Docker Desktop for Mac
 
 
 # Image created from nginx with index file RISF:
-https://hub.docker.com/r/gburucua/hello-image/tags
+](https://hub.docker.com/repository/docker/gburucua/nginx/general)
 
 ----------------------------------------------------------------------------------------
-# Before starting you need to install ingress-ngxing controller
+
+# Before starting its needed to install ingress-ngxing controller
 $ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/cloud/deploy.yaml
 
-#Set default namespace:
+# Set default namespace:
 $ kubectl config set-context --current --namespace=ingress-nginx
 
 ----------------------------------------------------------------------------------------
@@ -69,7 +70,7 @@ subjectAltName     = @alt_names
 DNS.1              = hello-itsf.local.domain
 DNS.2              = hello-risf.local.domain 
 
-
+----------------------------------------------------------------------------------------
 
 # Generating CA (certificate authority)
 $ openssl genrsa -out ca.key 2048 
@@ -124,7 +125,7 @@ kubectl apply -f pvc.yaml
 kubectl apply -f deployment.yaml
 kubectl apply -f deployment2.yaml
 kubectl apply -f services.yaml
-ingress-controller-deployment.yaml (To add secrets to the ingress controller)
+kubectl ingress-controller-deployment.yaml (To add secrets to the ingress controller)
 kubectl apply -f ingress.yaml
 
 
@@ -146,19 +147,20 @@ $ kubectl cp /tmp/index2.html index-html-deployment-647b95995-7v5gg:/usr/share/n
 
 
 
-#Problemes recontree 
+# Problemes recontree 
 
-certs V
-ingress V
-mounts X
+- certs V
+- ingress V
+- mounts X
 cest pas possible de redirigir le path dans le PV directment ou Docker Desktop for Mac
 essayer avec changement de confi en properties file sharing
 
 
 
-Security:
-To run as non root:
+# Security (To run containers as nonroot):
+
 Added permissions to specific folders of nginx with the user nginx in dockerfile and in the deployment added a few lines to reflect it.
+
 FROM nginx:1.20
 COPY index.html /etc/nginx/html/index.html
 WORKDIR /app
@@ -180,6 +182,19 @@ Specify the command to run NGINX
 CMD ["nginx", "-g", "daemon off;"]
 
 
+deployment.yaml
+...
+...
+    spec:
+      securityContext:
+        runAsUser: 101   # UID of the nginx user
+        fsGroup: 101      # GID of the nginx user
+...
+...
+        securityContext:
+          runAsNonRoot: true
+
+
 
 Iburuc:k8s gburucua$ k exec -it hello-world-nginx-c9c9d9b8b-ww7nx /bin/bash
-nginx@hello-world-nginx-c9c9d9b8b-ww7nx:/app$
+# nginx@hello-world-nginx-c9c9d9b8b-ww7nx:/app$
